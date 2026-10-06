@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${project.name} + ' - NGO Dashboard'">Project Details</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link th:href="@{/css/style.css}" rel="stylesheet">
+</head>
+<body>
+
+<div th:replace="~{layout/navbar :: navbar}"></div>
+
+<div class="container py-4">
+
+    <!-- Flash message -->
+    <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <span th:text="${successMessage}">Success message</span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-start mb-4">
+        <div>
+            <div class="d-flex align-items-center gap-2 mb-1">
+                <span class="badge" th:classappend="${project.status.badgeClass}" th:text="${project.status.displayName}">Status</span>
+                <span th:class="${project.priority.cssClass}" th:text="'Priority: ' + ${project.priority.displayName}">Priority: High</span>
+                <span th:if="${project.isOverdue()}" class="badge bg-danger">OVERDUE</span>
+            </div>
+            <h2 class="fw-bold mb-1" th:text="${project.name}">Clean Water Project</h2>
+            <p class="text-muted mb-0">Location: <strong th:text="${project.location}">Barmer District</strong> | Lead: <strong th:text="${project.leadOfficer}">Dr. Rajesh</strong></p>
+        </div>
+        <div class="d-flex gap-2">
+            <a th:href="@{'/projects/' + ${project.id} + '/edit'}" class="btn btn-outline-secondary btn-sm">Edit Details</a>
+            <a th:href="@{/projects}" class="btn btn-light border btn-sm">&larr; Back to List</a>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <!-- Main Info -->
+        <div class="col-md-8">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0 fw-bold">Mission Overview</h5>
+                </div>
+                <div class="card-body">
+                    <p class="card-text text-secondary" style="line-height: 1.6;" th:text="${project.description}">Mission description...</p>
+                    <hr>
+                    <div class="row text-center g-3">
+                        <div class="col-sm-4">
+                            <small class="text-muted text-uppercase fw-bold">Target Beneficiaries</small>
+                            <div class="fs-4 fw-bold" th:text="${#numbers.formatInteger(project.beneficiaryCount, 0, 'COMMA')}">10,000</div>
+                        </div>
+                        <div class="col-sm-4">
+                            <small class="text-muted text-uppercase fw-bold">Start Date</small>
+                            <div class="fs-5 fw-bold" th:text="${project.startDate}">2026-01-01</div>
+                        </div>
+                        <div class="col-sm-4">
+                            <small class="text-muted text-uppercase fw-bold">Deadline</small>
+                            <div class="fs-5 fw-bold" th:classappend="${project.isOverdue() ? 'text-danger' : ''}" th:text="${project.targetEndDate}">2026-12-31</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Milestones / Events Tracker -->
+            <div class="card shadow-sm" id="milestones-card">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 fw-bold">Key Milestones & Event Log</h5>
+                    <span class="badge bg-secondary" th:text="${project.milestones.size()} + ' Milestones'">3</span>
+                </div>
+                <div class="card-body">
+                    <div th:if="${project.milestones.isEmpty()}" class="text-muted py-3 text-center">
+                        No milestones logged yet. Add your first milestone below!
+                    </div>
+
+                    <div class="list-group mb-4" th:if="${!project.milestones.isEmpty()}">
+                        <div class="list-group-item d-flex justify-content-between align-items-center py-3"
+                             th:each="m : ${project.milestones}"
+                             th:classappend="${m.achieved ? 'list-group-item-light' : ''}">
+                            <div class="d-flex align-items-start gap-3">
+                                <form th:action="@{'/projects/' + ${project.id} + '/milestones/' + ${m.id} + '/toggle'}" method="post">
+                                    <button type="submit" class="btn btn-sm"
+                                            th:classappend="${m.achieved ? 'btn-success' : 'btn-outline-secondary'}"
+                                            th:title="${m.achieved ? 'Mark Pending' : 'Mark Achieved'}">
+                                        <span th:text="${m.achieved ? '✓ Done' : '○ Pending'}">Done</span>
+                                    </button>
+                                </form>
+                                <div>
+                                    <div class="fw-bold" th:classappend="${m.achieved ? 'text-decoration-line-through text-muted' : ''}" th:text="${m.title}">Milestone Title</div>
+                                    <small class="text-muted" th:text="${m.description}">Details...</small>
+                                </div>
+                            </div>
+                            <div class="text-end">
+                                <span class="badge bg-light text-dark border" th:text="'Due: ' + ${m.dueDate}">Due: 2026-10-15</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Add Milestone Form -->
+                    <div class="border rounded p-3 bg-light">
+                        <h6 class="fw-bold mb-3">+ Record New Project Milestone</h6>
+                        <form th:action="@{'/projects/' + ${project.id} + '/milestones'}" th:object="${newMilestone}" method="post" class="row g-2">
+                            <div class="col-md-5">
+                                <input type="text" class="form-control form-control-sm" name="title" placeholder="Milestone Title *" required>
+                            </div>
+                            <div class="col-md-4">
+                                <input type="text" class="form-control form-control-sm" name="description" placeholder="Description / notes">
+                            </div>
+                            <div class="col-md-2">
+                                <input type="date" class="form-control form-control-sm" name="dueDate" required>
+                            </div>
+                            <div class="col-md-1">
+                                <button type="submit" class="btn btn-primary btn-sm w-100">Add</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar Progress & Budget -->
+        <div class="col-md-4">
+            <!-- Progress Card -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <h6 class="mb-0 fw-bold">Overall Completion Progress</h6>
+                </div>
+                <div class="card-body text-center py-4">
+                    <div class="display-4 fw-bold text-primary mb-2" th:text="${project.progressPercent} + '%'">65%</div>
+                    <div class="progress mb-3" style="height: 14px;">
+                        <div class="progress-bar"
+                             th:classappend="${project.progressPercent == 100 ? 'bg-success' : 'bg-primary'}"
+                             th:style="'width: ' + ${project.progressPercent} + '%;'"></div>
+                    </div>
+                    <small class="text-muted" th:if="${!project.isOverdue() and project.status != T(org.ngo.dashboard.model.ProjectStatus).COMPLETED}">
+                        <strong th:text="${project.getDaysRemaining()}">30</strong> days remaining until deadline
+                    </small>
+                    <small class="text-danger fw-bold" th:if="${project.isOverdue()}">
+                        ⚠️ Project is past target deadline!
+                    </small>
+                </div>
+            </div>
+
+            <!-- Financials Card -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h6 class="mb-0 fw-bold">Budget & Utilization</h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Total Budget:</span>
+                        <span class="fw-bold" th:text="'$' + ${#numbers.formatDecimal(project.budget, 0, 'COMMA', 0, 'POINT')}">$50,000</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Funds Spent:</span>
+                        <span class="fw-bold text-danger" th:text="'$' + ${#numbers.formatDecimal(project.spent, 0, 'COMMA', 0, 'POINT')}">$25,000</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-3">
+                        <span class="text-muted">Remaining Balance:</span>
+                        <span class="fw-bold text-success" th:text="'$' + ${#numbers.formatDecimal(project.budget - project.spent, 0, 'COMMA', 0, 'POINT')}">$25,000</span>
+                    </div>
+                    <div class="progress mb-2">
+                        <div class="progress-bar bg-info" th:style="'width: ' + ${project.getBudgetUtilizationPercent()} + '%;'"></div>
+                    </div>
+                    <small class="text-muted d-block text-center" th:text="${project.getBudgetUtilizationPercent()} + '% budget utilized'">50% utilized</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer>
+    <div class="container-fluid px-4 text-center">
+        <span>DevOps Pipeline: Java 21 • Spring Boot 3.2 • Maven • Thymeleaf • H2 • Jenkins • Docker • Ansible</span>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

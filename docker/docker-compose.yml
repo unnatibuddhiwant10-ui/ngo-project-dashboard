@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  ngo-dashboard:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    image: ngo-project-dashboard:latest
+    container_name: ngo-dashboard-app
+    ports:
+      - "8080:8080"
+    environment:
+      - PORT=8080
+      - DEPLOY_ENV=docker-compose
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/health || exit 1"]
+      interval: 20s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    restart: always

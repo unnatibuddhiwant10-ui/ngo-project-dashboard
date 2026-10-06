@@ -1,0 +1,75 @@
+======================================================================
+     NGO PROJECT PROGRESS DASHBOARD - QUICK START GUIDE
+======================================================================
+
+Welcome to the NGO Project Progress Dashboard!
+This complete DevOps capstone project is packaged in 100% runnable form.
+
+HOW TO RUN THE APPLICATION:
+---------------------------
+Method 1 (Super Simple 1-Click):
+  Double-click "1-CLICK-RUN.bat" in this folder.
+  It will automatically start the server and open your web browser to:
+  http://localhost:8085/
+
+Method 2 (Command Line):
+  1. Open PowerShell or Command Prompt in this folder.
+  2. Run:
+     java -jar target\ngo-project-dashboard-1.0.0-SNAPSHOT.jar
+  3. Open http://localhost:8085/ in your browser.
+
+Method 3 (Using Maven directly):
+  mvn spring-boot:run
+
+
+HOW TO REMOVE OR RESTORE DEFAULT DATA:
+--------------------------------------
+- To REMOVE all default data and start with an empty database:
+  Click the red "Remove Default Data" button in the Dashboard, OR
+  Set app.seed.data=false in src/main/resources/application.properties.
+
+- To RESTORE the humanized grassroots community projects:
+  Click the "Load Human Stories" button in the Dashboard.
+
+- To add your own custom community initiatives:
+  Click "+ Add Project" or "+ Record New Initiative" in the top bar.
+
+
+IMPORTANT URLS WHILE RUNNING:
+-----------------------------
+- Main Dashboard:        http://localhost:8085/
+- Community Directory:   http://localhost:8085/projects
+- Register Initiative:   http://localhost:8085/projects/new
+- Risk Alerts Monitor:   http://localhost:8085/alerts
+- H2 Database Console:   http://localhost:8085/h2-console
+  (JDBC URL: jdbc:h2:mem:ngodb | User: sa | Password: password)
+- System Health Check:   http://localhost:8085/health
+- Metrics JSON API:      http://localhost:8085/api/metrics
+
+
+HOW TO RUN TESTS & DEVOPS PIPELINE DEMO:
+----------------------------------------
+- Run Unit & MockMvc Tests:
+  scripts\run-tests.bat   (or: mvn test -Dtest="!*SeleniumTest")
+
+- Run Master DevOps Demo (Tests + Package + Ansible Idempotency + Rollback):
+  scripts\run-devops-demo.bat
+
+- View Interactive Evidence Portal (No server needed, open in browser):
+  docs\EVIDENCE_PORTAL.html
+
+
+DOCUMENTATION & ACADEMIC SUBMISSION FILES:
+------------------------------------------
+- Full Project Report:     docs\FINAL_PROJECT_REPORT.md
+- 10-Slide Pitch Deck:     docs\PRESENTATION_SLIDES.md
+- Viva Voce Q&A Guide:     docs\VIVA_PREPARATION_GUIDE.md
+- DevOps Lifecycle Flow:   docs\04-devops-lifecycle.md
+- Inception & Scope:       docs\01-inception-and-scope.md
+- User Stories Matrix:     docs\02-user-stories.md
+- Kanban Board & DoD:      docs\03-kanban-and-dod.md
+- Architecture & SRS:      docs\05-srs-and-architecture.md
+- Git Branching Strategy:  docs\06-branching-strategy.md
+- Automated Test Plan:     docs\07-test-plan.md
+- Server Prerequisites:    docs\08-server-prerequisites.md
+======================================================================

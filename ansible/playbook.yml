@@ -1,0 +1,94 @@
+---
+# ========================================================
+# Ansible Playbook: Deploy NGO Project Progress Dashboard
+# Designed for Idempotency (changed=0 on consecutive runs)
+# ========================================================
+- name: Deploy NGO Project Dashboard Service
+  hosts: all
+  become: yes
+  vars:
+    app_image: "ngo-project-dashboard:latest"
+    container_name: "ngo-dashboard-live"
+    exposed_port: 8080
+    internal_port: 8080
+
+  tasks:
+    - name: 1. Ensure dedicated application group exists
+      group:
+        name: "{{ deploy_group }}"
+        state: present
+        gid: 1001
+
+    - name: 2. Ensure non-root service user exists
+      user:
+        name: "{{ deploy_user }}"
+        group: "{{ deploy_group }}"
+        state: present
+        uid: 1001
+        shell: /bin/bash
+        home: "{{ deploy_dir }}"
+        create_home: yes
+
+    - name: 3. Ensure required directories exist with correct permissions
+      file:
+        path: "{{ item }}"
+        state: directory
+        owner: "{{ deploy_user }}"
+        group: "{{ deploy_group }}"
+        mode: '0755'
+      loop:
+        - "{{ deploy_dir }}"
+        - "{{ deploy_dir }}/logs"
+        - "{{ deploy_dir }}/config"
+        - "{{ deploy_dir }}/releases"
+
+    - name: 4. Ensure system prerequisites are installed
+      package:
+        name:
+          - curl
+          - jq
+        state: present
+
+    - name: 5. Ensure application container is running (Idempotent Docker Container)
+      community.docker.docker_container:
+        name: "{{ container_name }}"
+        image: "{{ app_image }}"
+        state: started
+        restart_policy: unless-stopped
+        ports:
+          - "{{ exposed_port }}:{{ internal_port }}"
+        env:
+          PORT: "{{ internal_port }}"
+          DEPLOY_ENV: "production"
+        volumes:
+          - "{{ deploy_dir }}/logs:/app/logs"
+        log_driver: "json-file"
+        log_options:
+          max-size: "20m"
+          max-file: "5"
+
+    - name: 6. Wait for service health check (HTTP GET /health)
+      uri:
+        url: "http://localhost:{{ exposed_port }}/health"
+        method: GET
+        status_code: 200
+        return_content: yes
+      register: health_result
+      until: health_result.status == 200 and 'UP' in health_result.content
+      retries: 10
+      delay: 3
+
+    - name: 7. Record deployment state and version release
+      copy:
+        content: |
+          DEPLOYED_IMAGE={{ app_image }}
+          DEPLOYED_AT={{ ansible_date_time.iso8601 }}
+          STATUS=HEALTHY
+        dest: "{{ deploy_dir }}/releases/current_release.env"
+        owner: "{{ deploy_user }}"
+        group: "{{ deploy_group }}"
+        mode: '0644'
+
+    - name: 8. Output Health Status
+      debug:
+        msg: "Deployment Successful! NGO Dashboard is UP at http://localhost:{{ exposed_port }}/"

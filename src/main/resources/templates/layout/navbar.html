@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head></head>
+<body>
+<nav th:fragment="navbar" class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container-fluid px-4">
+        <a class="navbar-brand d-flex align-items-center gap-2" th:href="@{/}">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" class="bi bi-heart-pulse-fill" viewBox="0 0 16 16">
+                <path fill-rule="evenodd" d="M1.475 9C2.702 10.84 4.779 12.871 8 15c3.221-2.129 5.298-4.16 6.525-6H12a.5.5 0 0 1-.464-.314l-1.457-3.642-1.998 5.328a.5.5 0 0 1-.948.064L5.61 6.55 4.887 8.356A.5.5 0 0 1 4.425 8.7H1.475zm.213-1H4.07l.9-2.25a.5.5 0 0 1 .94-.064l1.528 4.075 2.015-5.374a.5.5 0 0 1 .944.029l1.644 4.11H14.31c.394-.654.69-1.393.69-2.23C15 2.804 12.197 1 8.5 1S2 2.804 2 6.5c0 .837.296 1.576.688 2.5z"/>
+            </svg>
+            <span>NGO Project Dashboard</span>
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navContent">
+            <span class="navbar-toggler-span"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navContent">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <a class="nav-link" th:classappend="${activeNav == 'dashboard' ? 'active' : ''}" th:href="@{/dashboard}" id="nav-dashboard">Dashboard</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:classappend="${activeNav == 'projects' ? 'active' : ''}" th:href="@{/projects}" id="nav-projects">Projects & Milestones</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:classappend="${activeNav == 'new-project' ? 'active' : ''}" th:href="@{/projects/new}" id="nav-new-project">+ Add Project</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:classappend="${activeNav == 'alerts' ? 'active' : ''}" th:href="@{/alerts}" id="nav-alerts">
+                        Alerts & Risks
+                    </a>
+                </li>
+            </ul>
+            <div class="d-flex align-items-center gap-2">
+                <a th:href="@{/h2-console}" target="_blank" class="btn btn-outline-light btn-sm" title="H2 In-Memory DB Console">H2 Console</a>
+                <a th:href="@{/health}" target="_blank" class="badge bg-success text-decoration-none py-2 px-2" id="health-badge">
+                    ● Health: UP
+                </a>
+                <span class="pipeline-tag">v1.0.0-devops</span>
+            </div>
+        </div>
+    </div>
+</nav>
+</body>
+</html>
