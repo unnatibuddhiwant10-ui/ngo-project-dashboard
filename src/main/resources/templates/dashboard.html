@@ -27,6 +27,18 @@
         </div>
         <a th:href="@{/alerts}" class="btn btn-sm btn-outline-dark fw-bold" id="view-alerts-btn">View Critical Alerts &rarr;</a>
     </div>
+    
+    <!-- Dashboard Status Indicator -->
+<div class="alert alert-success d-flex align-items-center justify-content-between mb-4 shadow-sm"
+     id="dashboard-status">
+    <div>
+        <strong>Dashboard Status:</strong>
+        <span>Active</span>
+        <span class="ms-2">|</span>
+        <span class="ms-2">Progress Monitoring Enabled</span>
+    </div>
+    <span class="badge bg-success">LIVE</span>
+</div>
 
     <!-- KPI Metric Cards -->
     <div class="row g-3 mb-4" id="kpi-section">
