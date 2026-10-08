@@ -3,15 +3,19 @@ pipeline {
 
     environment {
         REGISTRY = 'docker.io'
-        DOCKER_USER = 'ngodevops'
+        DOCKER_USER = 'unnati10'
         IMAGE_NAME = 'ngo-project-dashboard'
+        IMAGE = "${DOCKER_USER}/${IMAGE_NAME}"
         VERSION_TAG = "1.0.${BUILD_NUMBER}"
-        CONTAINER_PORT = '8080'
+        CONTAINER_NAME = 'ngo-dashboard-container'
+        CONTAINER_PORT = '8085'
     }
 
     stages {
+
         stage('1. Checkout') {
             steps {
+                echo ">>> Checking out source code..."
                 checkout scm
             }
         }
@@ -19,57 +23,101 @@ pipeline {
         stage('2. Test & Quality Gate') {
             steps {
                 echo ">>> Running automated tests..."
-                sh 'mvn test'
+                sh 'mvn clean package'
             }
         }
 
         stage('3. Build Docker Image') {
             steps {
-                echo ">>> Building versioned Docker image: ${IMAGE_NAME}:${VERSION_TAG}..."
-                sh "docker build -t ${IMAGE_NAME}:${VERSION_TAG} -t ${IMAGE_NAME}:latest -f docker/Dockerfile ."
+                echo ">>> Building Docker image ${IMAGE}:${VERSION_TAG}..."
+
+                sh """
+                    docker build \
+                      -t ${IMAGE}:${VERSION_TAG} \
+                      -t ${IMAGE}:latest \
+                      -f Dockerfile .
+                """
             }
         }
 
-        stage('4. Push to Container Registry') {
+        stage('4. Login & Push to Docker Hub') {
             steps {
-                echo ">>> Pushing versioned image ${IMAGE_NAME}:${VERSION_TAG} to registry..."
-                /*
-                withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', usernameVariable: 'USER', passwordVariable: 'PASS')]) {
-                    sh "echo $PASS | docker login -u $USER --password-stdin ${REGISTRY}"
-                    sh "docker push ${IMAGE_NAME}:${VERSION_TAG}"
-                    sh "docker push ${IMAGE_NAME}:latest"
+                echo ">>> Logging in to Docker Hub..."
+
+                withCredentials([
+                    usernamePassword(
+                        credentialsId: 'dockerhub-credentials',
+                        usernameVariable: 'DOCKER_USERNAME',
+                        passwordVariable: 'DOCKER_TOKEN'
+                    )
+                ]) {
+                    sh '''
+                        echo "$DOCKER_TOKEN" | docker login \
+                            -u "$DOCKER_USERNAME" \
+                            --password-stdin docker.io
+
+                        docker push ${IMAGE}:${VERSION_TAG}
+                        docker push ${IMAGE}:latest
+
+                        docker logout
+                    '''
                 }
-                */
-                echo "Simulated push: Image ${IMAGE_NAME}:${VERSION_TAG} published successfully."
             }
         }
 
         stage('5. Deploy Fresh Container') {
             steps {
-                echo ">>> Stopping previous container and deploying ${IMAGE_NAME}:${VERSION_TAG}..."
+                echo ">>> Deploying fresh Docker container..."
+
                 sh """
-                    docker stop ${IMAGE_NAME} || true
-                    docker rm ${IMAGE_NAME} || true
-                    docker run -d --name ${IMAGE_NAME} -p ${CONTAINER_PORT}:8080 --restart unless-stopped ${IMAGE_NAME}:${VERSION_TAG}
+                    docker stop ${CONTAINER_NAME} || true
+                    docker rm ${CONTAINER_NAME} || true
+
+                    docker pull ${IMAGE}:${VERSION_TAG}
+
+                    docker run -d \
+                      --name ${CONTAINER_NAME} \
+                      -p ${CONTAINER_PORT}:${CONTAINER_PORT} \
+                      --restart unless-stopped \
+                      ${IMAGE}:${VERSION_TAG}
                 """
             }
         }
 
         stage('6. Post-Deploy Health Check') {
             steps {
-                echo ">>> Verifying health of new container..."
+                echo ">>> Checking deployed application..."
+
                 sh """
-                    sleep 5
-                    curl -s -f http://localhost:${CONTAINER_PORT}/health | grep '"status":"UP"' || exit 1
-                    echo "Container is UP and operational!"
+                    sleep 10
+
+                    curl -f http://host.docker.internal:${CONTAINER_PORT}/actuator/health
+
+                    echo ""
+                    echo "=============================================="
+                    echo "Docker deployment successful!"
+                    echo "Image: ${IMAGE}:${VERSION_TAG}"
+                    echo "URL: http://localhost:${CONTAINER_PORT}"
+                    echo "=============================================="
                 """
             }
         }
     }
 
     post {
-        always {
-            cleanWs()
+        success {
+            echo "=============================================="
+            echo "WEEK 12 CD PIPELINE SUCCESSFUL"
+            echo "Docker image pushed to Docker Hub."
+            echo "Fresh container deployed successfully."
+            echo "=============================================="
+        }
+
+        failure {
+            echo "=============================================="
+            echo "WEEK 12 PIPELINE FAILED"
+            echo "Check the failed stage in Jenkins."
+            echo "=============================================="
         }
     }
 }
