@@ -163,15 +163,24 @@ void testSearchAndFilterProjects() {
     driver.findElement(By.id("search-btn"))
             .click();
 
-    // Locate projects table after search
-    WebElement table =
+    // Wait briefly for the search results/table to refresh
+    try {
+        Thread.sleep(1000);
+    } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
+    }
+
+    // IMPORTANT:
+    // Locate the table AFTER the search operation has completed.
+    // This avoids StaleElementReferenceException.
+    WebElement tableAfterSearch =
             driver.findElement(By.id("projects-table"));
 
-    // Read table content
+    // Read the refreshed table content
     String tableText =
-            table.getText();
+            tableAfterSearch.getText();
 
-    // Verify that the searched project appears
+    // Verify that the searched keyword appears
     assertTrue(
             tableText.toLowerCase().contains("jal"),
             "Search results should contain the searched keyword 'Jal'"
