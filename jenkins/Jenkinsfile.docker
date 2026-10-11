@@ -84,24 +84,32 @@ pipeline {
             }
         }
 
-        stage('6. Post-Deploy Health Check') {
-            steps {
-                echo ">>> Checking deployed application..."
+        
+stage('6. Post-Deploy Health Check') {
+    steps {
+        echo '>>> Checking deployed application...'
+        sh '''
+            for i in $(seq 1 30); do
+                echo "Health check attempt $i of 30..."
 
-                sh """
-                    sleep 10
-
-                    curl -f http://host.docker.internal:${CONTAINER_PORT}/actuator/health
-
+                if curl --silent --show-error --fail \
+                    http://host.docker.internal:8085/actuator/health; then
                     echo ""
-                    echo "=============================================="
-                    echo "Docker deployment successful!"
-                    echo "Image: ${IMAGE}:${VERSION_TAG}"
-                    echo "URL: http://localhost:${CONTAINER_PORT}"
-                    echo "=============================================="
-                """
-            }
-        }
+                    echo "Health check PASSED!"
+                    exit 0
+                fi
+
+                echo "Application is not ready yet. Waiting 5 seconds..."
+                sleep 5
+            done
+
+            echo "Health check FAILED after 30 attempts."
+            docker logs --tail 100 ngo-dashboard-container || true
+            exit 1
+        '''
+    }
+}
+
     }
 
     post {
