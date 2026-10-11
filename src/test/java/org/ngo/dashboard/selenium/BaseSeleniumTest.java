@@ -1,13 +1,13 @@
+
 package org.ngo.dashboard.selenium;
 
+import org.openqa.selenium.PageLoadStrategy;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
-import org.openqa.selenium.edge.EdgeDriver;
-import org.openqa.selenium.edge.EdgeOptions;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 
@@ -24,25 +24,26 @@ public abstract class BaseSeleniumTest {
 
     @BeforeEach
     public void setUpDriver() {
-        try {
-            ChromeOptions chromeOptions = new ChromeOptions();
-            chromeOptions.addArguments("--headless=new");
-            chromeOptions.addArguments("--no-sandbox");
-            chromeOptions.addArguments("--disable-dev-shm-usage");
-            chromeOptions.addArguments("--disable-gpu");
-            chromeOptions.addArguments("--window-size=1920,1080");
-            chromeOptions.addArguments("--remote-allow-origins=*");
-            driver = new ChromeDriver(chromeOptions);
-        } catch (Exception e) {
-            System.out.println("ChromeDriver initialization failed, attempting fallback to EdgeDriver: " + e.getMessage());
-            EdgeOptions edgeOptions = new EdgeOptions();
-            edgeOptions.addArguments("--headless=new");
-            edgeOptions.addArguments("--no-sandbox");
-            edgeOptions.addArguments("--disable-dev-shm-usage");
-            edgeOptions.addArguments("--disable-gpu");
-            edgeOptions.addArguments("--window-size=1920,1080");
-            driver = new EdgeDriver(edgeOptions);
+        ChromeOptions options = new ChromeOptions();
+
+        options.setPageLoadStrategy(PageLoadStrategy.EAGER);
+        options.addArguments("--headless=new");
+        options.addArguments("--no-sandbox");
+        options.addArguments("--disable-dev-shm-usage");
+        options.addArguments("--disable-gpu");
+        options.addArguments("--window-size=1920,1080");
+        options.addArguments("--remote-allow-origins=*");
+
+        // Use the Chromium binary installed in the Linux Jenkins container.
+        String chromiumPath = System.getenv("CHROME_BIN");
+        if (chromiumPath != null && !chromiumPath.isBlank()) {
+            options.setBinary(chromiumPath);
         }
+
+        // Selenium Manager can discover the local driver or download one
+        // when required. On Jenkins, Chromium and its driver are installed
+        // in the Jenkins image.
+        driver = new ChromeDriver(options);
 
         driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(5));
         driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(15));
