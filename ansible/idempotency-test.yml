@@ -1,0 +1,116 @@
+---
+- name: Test NGO Dashboard Configuration Management
+  hosts: local
+  become: false
+
+  tasks:
+    - name: Create Ansible test directory
+      ansible.builtin.file:
+        path: /tmp/ngo-ansible-demo
+        state: directory
+        mode: '0755'
+
+    - name: Create configuration test file
+      ansible.builtin.copy:
+        content: |
+          Project=NGO Project Progress Dashboard
+          Environment=Testing
+          Status=Configured
+        dest: /tmp/ngo-ansible-demo/config.txt
+        mode: '0644'
+
+    - name: Display successful configuration
+      ansible.builtin.debug:
+        msg: "NGO Dashboard configuration test completed" 
+- name: Test NGO Dashboard Configuration Management
+  hosts: local
+  become: false
+
+  tasks:
+    - name: Create Ansible test directory
+      ansible.builtin.file:
+        path: /tmp/ngo-ansible-demo
+        state: directory
+        mode: '0755'
+
+    - name: Create configuration test file
+      ansible.builtin.copy:
+        content: |
+          Project=NGO Project Progress Dashboard
+          Environment=Testing
+          Status=Configured
+        dest: /tmp/ngo-ansible-demo/config.txt
+        mode: '0644'
+
+    - name: Display successful configuration
+      ansible.builtin.debug:
+        msg: "NGO Dashboard configuration test completed" 
+- name: Test NGO Dashboard Configuration Management
+  hosts: local
+  become: false
+
+  tasks:
+    - name: Create Ansible test directory
+      ansible.builtin.file:
+        path: /tmp/ngo-ansible-demo
+        state: directory
+        mode: '0755'
+
+    - name: Create configuration test file
+      ansible.builtin.copy:
+        content: |
+          Project=NGO Project Progress Dashboard
+          Environment=Testing
+          Status=Configured
+        dest: /tmp/ngo-ansible-demo/config.txt
+        mode: '0644'
+
+    - name: Display successful configuration
+      ansible.builtin.debug:
+        msg: "NGO Dashboard configuration test completed" 
+- name: Test NGO Dashboard Configuration Management
+  hosts: local
+  become: false
+
+  tasks:
+    - name: Create Ansible test directory
+      ansible.builtin.file:
+        path: /tmp/ngo-ansible-demo
+        state: directory
+        mode: '0755'
+
+    - name: Create configuration test file
+      ansible.builtin.copy:
+        content: |
+          Project=NGO Project Progress Dashboard
+          Environment=Testing
+          Status=Configured
+        dest: /tmp/ngo-ansible-demo/config.txt
+        mode: '0644'
+
+    - name: Display successful configuration
+      ansible.builtin.debug:
+        msg: "NGO Dashboard configuration test completed" 
+- name: Test NGO Dashboard Configuration Management
+  hosts: local
+  become: false
+
+  tasks:
+    - name: Create Ansible test directory
+      ansible.builtin.file:
+        path: /tmp/ngo-ansible-demo
+        state: directory
+        mode: '0755'
+
+    - name: Create configuration test file
+      ansible.builtin.copy:
+        content: |
+          Project=NGO Project Progress Dashboard
+          Environment=Testing
+          Status=Configured
+        dest: /tmp/ngo-ansible-demo/config.txt
+        mode: '0644'
+
+    - name: Display successful configuration
+      ansible.builtin.debug:
+        msg: "NGO Dashboard configuration test completed"

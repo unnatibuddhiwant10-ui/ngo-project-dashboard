@@ -1,0 +1,84 @@
+
+PLAY [Test NGO Dashboard Configuration Management] *****************************
+
+TASK [Gathering Facts] *********************************************************
+ok: [localhost]
+
+TASK [Create Ansible test directory] *******************************************
+ok: [localhost]
+
+TASK [Create configuration test file] ******************************************
+ok: [localhost]
+
+TASK [Display successful configuration] ****************************************
+ok: [localhost] => {
+    "msg": "NGO Dashboard configuration test completed"
+}
+
+PLAY [Test NGO Dashboard Configuration Management] *****************************
+
+TASK [Gathering Facts] *********************************************************
+ok: [localhost]
+
+TASK [Create Ansible test directory] *******************************************
+ok: [localhost]
+
+TASK [Create configuration test file] ******************************************
+ok: [localhost]
+
+TASK [Display successful configuration] ****************************************
+ok: [localhost] => {
+    "msg": "NGO Dashboard configuration test completed"
+}
+
+PLAY [Test NGO Dashboard Configuration Management] *****************************
+
+TASK [Gathering Facts] *********************************************************
+ok: [localhost]
+
+TASK [Create Ansible test directory] *******************************************
+ok: [localhost]
+
+TASK [Create configuration test file] ******************************************
+ok: [localhost]
+
+TASK [Display successful configuration] ****************************************
+ok: [localhost] => {
+    "msg": "NGO Dashboard configuration test completed"
+}
+
+PLAY [Test NGO Dashboard Configuration Management] *****************************
+
+TASK [Gathering Facts] *********************************************************
+ok: [localhost]
+
+TASK [Create Ansible test directory] *******************************************
+ok: [localhost]
+
+TASK [Create configuration test file] ******************************************
+ok: [localhost]
+
+TASK [Display successful configuration] ****************************************
+ok: [localhost] => {
+    "msg": "NGO Dashboard configuration test completed"
+}
+
+PLAY [Test NGO Dashboard Configuration Management] *****************************
+
+TASK [Gathering Facts] *********************************************************
+ok: [localhost]
+
+TASK [Create Ansible test directory] *******************************************
+ok: [localhost]
+
+TASK [Create configuration test file] ******************************************
+ok: [localhost]
+
+TASK [Display successful configuration] ****************************************
+ok: [localhost] => {
+    "msg": "NGO Dashboard configuration test completed"
+}
+
+PLAY RECAP *********************************************************************
+localhost                  : ok=20   changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+
