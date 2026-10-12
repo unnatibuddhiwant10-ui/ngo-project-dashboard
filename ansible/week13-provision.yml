@@ -1,0 +1,53 @@
+---
+- name: Week 13 - NGO Dashboard Configuration Management
+  hosts: local
+  become: false
+
+  vars:
+    deploy_user: ngoapp
+    deploy_group: ngogroup
+    deploy_dir: /opt/ngo-dashboard
+
+  tasks:
+    - name: Ensure application group exists
+      ansible.builtin.group:
+        name: "{{ deploy_group }}"
+        state: present
+
+    - name: Ensure application service user exists
+      ansible.builtin.user:
+        name: "{{ deploy_user }}"
+        group: "{{ deploy_group }}"
+        state: present
+        shell: /bin/bash
+        home: "{{ deploy_dir }}"
+        create_home: true
+
+    - name: Ensure application directories exist
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: directory
+        owner: "{{ deploy_user }}"
+        group: "{{ deploy_group }}"
+        mode: '0755'
+      loop:
+        - "{{ deploy_dir }}"
+        - "{{ deploy_dir }}/logs"
+        - "{{ deploy_dir }}/config"
+        - "{{ deploy_dir }}/releases"
+
+    - name: Record configuration management status
+      ansible.builtin.copy:
+        dest: "{{ deploy_dir }}/config/ansible-status.txt"
+        content: |
+          Application: NGO Project Progress Dashboard
+          Configuration: Managed by Ansible
+          Service user: {{ deploy_user }}
+          Service group: {{ deploy_group }}
+        owner: "{{ deploy_user }}"
+        group: "{{ deploy_group }}"
+        mode: '0644'
+
+    - name: Confirm provisioning
+      ansible.builtin.debug:
+        msg: "NGO Dashboard system prerequisites provisioned successfully"

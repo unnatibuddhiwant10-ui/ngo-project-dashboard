@@ -1,0 +1,29 @@
+
+PLAY [Week 13 - NGO Dashboard Configuration Management] ************************
+
+TASK [Gathering Facts] *********************************************************
+ok: [localhost]
+
+TASK [Ensure application group exists] *****************************************
+ok: [localhost]
+
+TASK [Ensure application service user exists] **********************************
+ok: [localhost]
+
+TASK [Ensure application directories exist] ************************************
+ok: [localhost] => (item=/opt/ngo-dashboard)
+ok: [localhost] => (item=/opt/ngo-dashboard/logs)
+ok: [localhost] => (item=/opt/ngo-dashboard/config)
+ok: [localhost] => (item=/opt/ngo-dashboard/releases)
+
+TASK [Record configuration management status] **********************************
+ok: [localhost]
+
+TASK [Confirm provisioning] ****************************************************
+ok: [localhost] => {
+    "msg": "NGO Dashboard system prerequisites provisioned successfully"
+}
+
+PLAY RECAP *********************************************************************
+localhost                  : ok=6    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+
