@@ -1,55 +1,54 @@
 ---
-# ========================================================
-# Ansible Rollback Playbook: Revert to Previous Stable Image
-# ========================================================
-- name: Rollback NGO Project Dashboard
-  hosts: all
-  become: yes
+- name: Rollback NGO Dashboard to Previous Healthy Release
+  hosts: local
+  become: false
+  gather_facts: true
+
   vars:
-    rollback_image: "{{ ROLLBACK_VERSION | default('ngo-project-dashboard:1.0.0-stable') }}"
-    container_name: "ngo-dashboard-live"
-    exposed_port: 8080
+    rollback_image: "unnati10/ngo-project-dashboard:1.0.12"
+    container_name: "ngo-dashboard-container"
+    exposed_port: 8085
+    internal_port: 8085
 
   tasks:
-    - name: 1. Announce Rollback Procedure
-      debug:
-        msg: "Initiating emergency rollback to stable image: {{ rollback_image }}"
+    - name: 1. Announce rollback
+      ansible.builtin.debug:
+        msg: "Rolling back to {{ rollback_image }}"
 
-    - name: 2. Stop and remove degraded container
+    - name: 2. Stop and remove current dashboard container
       community.docker.docker_container:
         name: "{{ container_name }}"
         state: absent
 
-    - name: 3. Launch container using previously validated stable image
+    - name: 3. Start previous release
       community.docker.docker_container:
         name: "{{ container_name }}"
         image: "{{ rollback_image }}"
         state: started
         restart_policy: unless-stopped
         ports:
-          - "{{ exposed_port }}:8080"
-        env:
-          DEPLOY_ENV: "production-rollback"
+          - "{{ exposed_port }}:{{ internal_port }}"
 
-    - name: 4. Verify post-rollback health status
-      uri:
-        url: "http://localhost:{{ exposed_port }}/health"
+    - name: 4. Verify application health
+      ansible.builtin.uri:
+        url: "http://localhost:{{ exposed_port }}/actuator/health"
         method: GET
         status_code: 200
-        return_content: yes
+        return_content: true
       register: rollback_health
-      until: rollback_health.status == 200
-      retries: 6
-      delay: 3
+      until: (rollback_health.json | default({})).get('status', '') == "UP"
+      retries: 12
+      delay: 5
 
-    - name: 5. Update release tracking metadata
-      copy:
+    - name: 5. Record rollback release
+      ansible.builtin.copy:
+        dest: /opt/ngo-dashboard/releases/current_release.env
         content: |
           DEPLOYED_IMAGE={{ rollback_image }}
           ROLLBACK_EXECUTED_AT={{ ansible_date_time.iso8601 }}
           STATUS=ROLLED_BACK
-        dest: "{{ deploy_dir }}/releases/current_release.env"
+        mode: '0644'
 
-    - name: 6. Confirm rollback resolution
-      debug:
-        msg: "Rollback Complete! Application restored to healthy state running {{ rollback_image }}"
+    - name: 6. Confirm rollback
+      ansible.builtin.debug:
+        msg: "Rollback successful. {{ rollback_image }} is healthy."
